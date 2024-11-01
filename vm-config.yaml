@@ -1,0 +1,56 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: rhel9-vm-100g
+  namespace: default
+spec:
+  running: true
+  template:
+    spec:
+      domain:
+        cpu:
+          cores: 8
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+            - name: datadisk  # New disk for PVC
+              disk:
+                bus: virtio
+        machine:
+          type: q35
+        resources:
+          requests:
+            memory: 16Gi
+          limits:
+            memory: 20Gi
+      volumes:
+        - name: rootdisk
+          containerDisk:
+            image: 'registry.redhat.io/rhel9/rhel-guest-image:latest'
+            imagePullSecret: redhat-registry-secret
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              password: "default"
+              chpasswd: { expire: False }
+              ssh_pwauth: True
+              # Mount the additional disk
+              bootcmd:
+                - mkdir -p /mnt/data
+              mounts:
+                - [ "/dev/vdc", "/mnt/data", "ext4", "defaults", "0", "0" ]
+              # Format the disk on first boot if needed
+              runcmd:
+                - |
+                  if ! blkid /dev/vdc; then
+                    mkfs.ext4 /dev/vdc
+                  fi
+        - name: datadisk  # New volume for PVC
+          persistentVolumeClaim:
+            claimName: block-pvc
