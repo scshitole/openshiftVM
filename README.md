@@ -7,6 +7,8 @@ oc port-forward pod/rhel9-vm-100g-<pod-name> 2222:22
 ssh -p 2222 cloud-user@localhost
 sudo subscription-manager register --username user --password passed
 
+
+
 # Switch to root
 sudo -i
 
@@ -29,6 +31,13 @@ dnf install -y \
 # Install Python dependencies
 pip3 install --upgrade pip
 
-pip3 install openvino
+sudo subscription-manager repos --enable=rhel-9-for-x86_64-baseos-rpms
+sudo subscription-manager repos --enable=rhel-9-for-x86_64-appstream-rpms
 
-https://docs.openvino.ai/2024/get-started/install-openvino/install-openvino-yum.html
+sudo yum install podman
+
+podman pull registry.connect.redhat.com/intel/openvino-runtime:2024.4.0
+
+podman run -d --name openvino-container registry.connect.redhat.com/intel/openvino-runtime:2024.4.0 /bin/bash -c "while true; do sleep 30; done;"
+
+
