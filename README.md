@@ -40,6 +40,9 @@ sudo yum install podman
 
 podman pull registry.connect.redhat.com/intel/openvino-runtime:2024.4.0
 
+```
 podman run -d --name openvino-container registry.connect.redhat.com/intel/openvino-runtime:2024.4.0 /bin/bash -c "while true; do sleep 30; done;"
+
+podman exec -it openvino-container /bin/bash
 
 
