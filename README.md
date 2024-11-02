@@ -11,13 +11,13 @@ sudo subscription-manager register --username user --password passed
 ```
 
 
-# Switch to root
+### Switch to root
 sudo -i
 
-# Update the system
+### Update the system
 dnf update -y
 
-# Install required packages
+### Install required packages
 dnf groupinstall -y "Development Tools"
 dnf install -y \
     python3-pip \
@@ -30,7 +30,7 @@ dnf install -y \
     unzip \
     git
 
-# Install Python dependencies
+### Install Python dependencies
 pip3 install --upgrade pip
 
 sudo subscription-manager repos --enable=rhel-9-for-x86_64-baseos-rpms
