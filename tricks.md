@@ -10,3 +10,11 @@ chroot /host
 mkdir -p /mnt/data
 chmod 755 /mnt/data
 ```
+
+```
+# Create new edge route (OpenShift handles SSL termination)
+oc create route edge nginx-route \
+    --service=nginx-service \
+    --hostname=nginx-plus.f5intel.bd.f5.com \
+    --port=80
+```
