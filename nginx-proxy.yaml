@@ -1,34 +1,15 @@
-user  nginx;
-worker_processes  auto;
-
-error_log  /var/log/nginx/error.log notice;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-http {
-    include       /etc/nginx/mime.types;
-    default_type  application/octet-stream;
-
-    upstream backend_servers {
-        server 10.129.0.37:80;   # fedora-vm-100g
-    }
-
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log  /var/log/nginx/access.log  main;
-
+  
     sendfile        on;
     keepalive_timeout  65;
 
     # Server configuration
     server {
         listen 80;
+        listen 443 ssl;
         server_name nginx-plus.f5intel.bd.f5.com;
+        # SSL configuration
+    ssl_certificate     /etc/nginx/ssl/nginx-plus.f5intel.bd.f5.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx-plus.f5intel.bd.f5.com.key;
 
         location / {
             proxy_pass http://backend_servers;
@@ -38,6 +19,24 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
+     # Server configuration for LLaMA LLM
+    server {
+        listen 80;
+        listen 443 ssl;
+        server_name llama.f5intel.bd.f5.com;  # Change as needed
+        # SSL configuration
+    ssl_certificate     /etc/nginx/ssl/llama.f5intel.bd.f5.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/llama.f5intel.bd.f5.com.key;
+
+        location / {
+            proxy_pass http://llama_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
 
     include /etc/nginx/conf.d/*.conf;
 }
+
