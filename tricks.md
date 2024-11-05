@@ -12,6 +12,10 @@ chmod 755 /mnt/data
 ```
 
 ```
+oc expose pod virt-launcher-rhel4nginx-l5mfx --port=80 --target-port=80 --name=nginx-service
+```
+
+```
 # Create new edge route (OpenShift handles SSL termination)
 oc create route edge nginx-route \
     --service=nginx-service \
