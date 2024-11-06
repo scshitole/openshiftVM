@@ -1,5 +1,6 @@
-# openshiftVM
-
+# Openshift as Infrastructure with NGINX + Proxy & OpenVino 
+# OpenVino Model used
+https://huggingface.co/OpenVINO/open_llama_3b_v2-fp16-ov
 
 #### Replace <pod-name> with the actual pod name from above command
 oc port-forward pod/rhel9-vm-100g-<pod-name> 2222:22
