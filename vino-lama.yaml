@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vino-lama
+  labels:
+    kubevirt.io: virt-launcher
+    kubevirt.io/nodeName: c8-4b-d6-8e-39-5c-ipu
+    vm.kubevirt.io/name: rhel-vino-lama
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    kubevirt.io: virt-launcher
+    kubevirt.io/created-by: 1c5370b8-9c03-442d-95c1-35f06c7b1721
+    kubevirt.io/nodeName: c8-4b-d6-8e-39-5c-ipu
+    vm.kubevirt.io/name: rhel4nginx
+  type: ClusterIP
