@@ -1,4 +1,72 @@
-  
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+
+
+    # Enable the status endpoint
+    server {
+        listen 8080;  # Choose a port for the telemetry endpoint
+        server_name nginx-telemetry-route-default.apps.f5intel.bd.f5.com;
+        location / {
+        root /usr/share/nginx/html/dashboard.html; # The directory where your HTML file is stored
+        index telemetry.html; # Default file to serve
+    }
+        location /status {
+            # Basic authentication for security (optional)
+            auth_basic "Restricted";
+            auth_basic_user_file /etc/nginx/.htpasswd; # Path to password file
+            # Provide access to NGINX Plus status
+            stub_status on;
+ 
+        }
+    }
+    # Enable the API for streaming metrics
+    server {
+        listen 8081;  # Choose a different port for API access
+        location /api {
+            allow all;  # Allow access from localhost
+           # deny all;          # Deny all other access
+            # Specify the API settings here
+        }
+     location = /dashboard.html {
+            root   /usr/share/nginx/html;
+        }
+    location /swagger-ui {
+            add_header Content-Security-Policy "default-src 'self'";
+            root       /usr/share/nginx/html;
+            allow       all;
+        }
+    }
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    upstream backend_servers {
+        server 10.129.0.37:80;   # fedora-vm-100g
+    }
+
+    upstream llama_servers {
+        server 10.131.0.68:5001;   # LLaMA LLM
+    }
+
+    upstream openvino_servers {
+        server 10.128.0.212:5000;   # openVino LLM
+    }
+
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
     sendfile        on;
     keepalive_timeout  65;
 
@@ -36,7 +104,27 @@
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
+      # Server configuration for openVino LLM
+    server {
+        listen 80;
+        listen 443 ssl;
+        server_name openvinollm.f5intel.bd.f5.com;  # Change as needed
+        # SSL configuration
+    ssl_certificate     /etc/nginx/ssl/openvinollm.f5intel.bd.f5.com.crt;
+    ssl_certificate_key /etc/nginx/ssl/openvinollm.f5intel.bd.f5.com.key;
+
+        location / {
+            proxy_pass http://openvino_servers;
+            proxy_set_header Host $host;
+            proxy_read_timeout 120;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
 
     include /etc/nginx/conf.d/*.conf;
 }
+  
+   
 
