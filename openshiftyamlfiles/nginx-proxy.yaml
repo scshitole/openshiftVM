@@ -113,10 +113,17 @@ http {
     ssl_certificate     /etc/nginx/ssl/openvinollm.f5intel.bd.f5.com.crt;
     ssl_certificate_key /etc/nginx/ssl/openvinollm.f5intel.bd.f5.com.key;
 
+        location /static/ {
+    proxy_pass http://openvino_servers/static/;
+}
         location / {
             proxy_pass http://openvino_servers;
+            proxy_no_cache 1;
+            proxy_cache_bypass 1;
+            # other proxy settings...
             proxy_set_header Host $host;
-            proxy_read_timeout 120;
+            proxy_read_timeout 180;
+            proxy_set_header Accept-Encoding "";  # Avoid issues with gzip
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
@@ -125,6 +132,6 @@ http {
 
     include /etc/nginx/conf.d/*.conf;
 }
-  
+
    
 
