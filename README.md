@@ -46,5 +46,5 @@ podman run -d --name openvino-container registry.connect.redhat.com/intel/openvi
 podman exec -it openvino-container /bin/bash
 
 ```
-![generated-icon](https://github.com/user-attachments/assets/4f2b599d-1a30-4917-b513-b063d8ddb8f4)
+
 
