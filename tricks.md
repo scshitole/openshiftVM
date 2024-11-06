@@ -22,3 +22,9 @@ oc create route edge nginx-route \
     --hostname=nginx-plus.f5intel.bd.f5.com \
     --port=80
 ```
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /path/to/llama.f5intel.bd.f5.com.key \
+-out /path/to/llama.f5intel.bd.f5.com.crt
+
+```
